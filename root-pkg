@@ -35,26 +35,24 @@ print("root-get location: ", pwd_path)
 
 os.chdir(pwd_path)
 path = pwd_path + "/withdep.py"
-file = "> math.yml"
-command = ['python3'] + [path] + [root_sources, 'math'] + [file]
+#file = "> math.yml"
+command = ['python3'] + [path] + [root_sources, 'math'] 
  
-f = open("math.yml", "w")
+#f = open("math.yml", "w")
 
-subprocess.run(command, stdout=f)
+subprocess.run(command)
 
-try:
-    completed = subprocess.run(command, stdout=f)
+#try:
+#   completed = subprocess.run(command, stdout=f)
 #    exit(completed.returncode)
-except: # Lower than python3.5
-    completed = subprocess.run(command, stdout=f)
+#except: # Lower than python3.5
+#    completed = subprocess.run(command, stdout=f)
 #    exit(completed[0])
  
 db_source = open("math.yml", "r")
-db_source = str(db_source)
-# path: math/quadp/
-#"""
+
 db_manifest = yaml.load(db_source)
-print(db_manifest)
+#print(db_manifest)
  
 #os.remove('math.yml')
 
@@ -65,8 +63,6 @@ for pkg in db_manifest:
   else:
     db_manifest[pkg]["deps"] = []
   db_manifest[pkg]["installed"] = os.path.isdir(os.path.join(pkg_path, pkg))
-
-print(db_manifest)
 
 def install_pkg(pkg):
   if pkg not in db_manifest.keys():
