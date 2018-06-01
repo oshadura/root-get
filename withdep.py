@@ -1,5 +1,6 @@
 import os
 import sys
+import yaml
 from os.path import expanduser
 
 arg1 = sys.argv[1]
@@ -46,33 +47,35 @@ for x in range(len(dir2)):
 pkgnames = []
 
 for i in range(len(pkg2)):
-    pkgnames.append(pkg2[i][0] + ":")
+    pkgnames.append(pkg2[i][0])
 
-deps = {'Foam:' : ['Hist', 'MathCore'],
-        'Fumili:' : ['Graf', 'Hist', 'MathCore'],
-        'Genetic:' : ['MathCore', 'TMVA'],
-        'MathCore:' : ['Imt'],
-        'MathMore:' : ['MathCore'],
-        'Matrix:' : ['MathCore'],
-        'Minuit:' : ['Graf', 'Hist', 'Matrix', 'MathCore'],
-        'Minuit2:' : ['MathCore', 'Hist'],
-        'MLP:' : ['Hist', 'Matrix', 'Tree', 'Graf', 'Gpad', 'TreePlayer', 'MathCore'],
-        'Physics:' : ['Matrix', 'MathCore'],
-        'Quadp:' : ['Matrix'],
-        'Rtools:' : ['Core', 'MathCore', 'RInterface'],
-        'SPlot:' : ['Matrix', 'Hist', 'Tree', 'TreePlayer', 'Graf3d', 'Graf', 'MathCore'],
-        'Unuran:' : ['Core', 'Hist', 'MathCore']
+deps = {'Foam' : ['Hist', 'MathCore'],
+        'Fumili' : ['Graf', 'Hist', 'MathCore'],
+        'Genetic' : ['MathCore', 'TMVA'],
+        #'MathCore' : ['Imt'],
+        'MathMore' : ['MathCore'],
+        'Matrix' : ['MathCore'],
+        'Minuit' : ['Graf', 'Hist', 'Matrix', 'MathCore'],
+        'Minuit2' : ['MathCore', 'Hist'],
+        'MLP' : ['Hist', 'Matrix', 'Tree', 'Graf', 'Gpad', 'TreePlayer', 'MathCore'],
+        'Physics' : ['Matrix', 'MathCore'],
+        'Quadp' : ['Matrix'],
+        'Rtools' : ['Core', 'MathCore', 'RInterface'],
+        'SPlot' : ['Matrix', 'Hist', 'Tree', 'TreePlayer', 'Graf3d', 'Graf', 'MathCore'],
+        'Unuran' : ['Core', 'Hist', 'MathCore']
         }
 
+d = {}
+
 for i in range (len(pkgnames)):
-    print(pkgnames[i])
-    print(" path: " + pt2[i] + "/")
+    z = pkgnames[i]
+
     if pkgnames[i] in deps:
-        z = pkgnames[i]
         k = deps.get(z)
-        print(" deps: ",end='')
-        for j in range(len(k)):
-            print (k[j],end=' ')
-        print ("")
+        #print(k)
+        d[z] = {'deps':k, 'path':pt2[i]}
     else:
-        continue
+        d[z] = {'path':pt2[i]}
+
+with open('math.yml', 'w') as yaml_file:
+    yaml.dump(d, yaml_file, default_flow_style=False)
