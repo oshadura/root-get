@@ -4,20 +4,36 @@ import argparse
 import sys
 import os
 import yaml
+import subprocess
 
-db_source = """
-XMLIO:
- path: io/xml/
-MathCore:
- path: math/mathcore/
-Matrix:
- deps: MathCore
- path: math/matrix/
-Quadp:
- deps: Matrix
- path: math/quadp/
-"""
+cwd = os.getcwd()
+
+os.chdir(cwd)
+path = cwd + "/withdep.py"
+file = "> math.yml"
+command = ['python3'] + [path] + ['root', 'math'] + [file]
+
+f = open("math.yml", "w")
+subprocess.run(command, stdout=f) 
+
+db_source = open("math.yml", "r")
+db_source = str(db_source)
+
+#db_source = """
+#XMLIO:
+# path: io/xml/
+#MathCore:
+# path: math/mathcore/
+#Matrix:
+# deps: MathCore
+# path: math/matrix/
+#Quadp:
+# deps: Matrix
+# path: math/quadp/
+#"""
 db_manifest = yaml.load(db_source)
+
+#os.remove('math.yml')
 
 root_sources = os.environ['ROOTSOURCES']
 print("ROOT sources: ", root_sources)
