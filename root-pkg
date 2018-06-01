@@ -77,8 +77,9 @@ def install_pkg(pkg):
       return False
   print("Installing " + pkg)
   src_dir = db_manifest[pkg]["path"]
-  full_src_dir =root_sources + "/" + src_dir
-  ec = os.system(pwd_path + "/" + "build-pkg " + pkg + " " + full_src_dir)
+#  full_src_dir =root_sources + "/" + src_dir
+  ec = os.system(pwd_path + "/" + "build-pkg " + pkg + " " + src_dir)
+#  ec = os.system("build-pkg" + pkg + " " + full_src_dir)
   if ec != 0:
     print("Failed to install package")
     return False
