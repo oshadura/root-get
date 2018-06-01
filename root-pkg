@@ -1,23 +1,31 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import argparse
 import sys
 import os
 import yaml
+import subprocess
 
-db_source = """
-XMLIO:
- path: io/xml/
-MathCore:
- path: math/mathcore/
-Matrix:
- deps: MathCore
- path: math/matrix/
-Quadp:
- deps: Matrix
- path: math/quadp/
-"""
-db_manifest = yaml.load(db_source)
+
+def subprocess_run(*popenargs, input=None, check=False, **kwargs):
+    if input is not None:
+        if 'stdin' in kwargs:
+            raise ValueError('stdin and input arguments may not both be used.')
+        kwargs['stdin'] = subprocess.PIPE
+
+    process = subprocess.Popen(*popenargs, **kwargs)
+    try:
+        stdout, stderr = process.communicate(input)
+    except:
+        process.kill()
+        process.wait()
+        raise
+    retcode = process.poll()
+    if check and retcode:
+        raise subprocess.CalledProcessError(
+            retcode, process.args, output=stdout, stderr=stderr)
+    return retcode, stdout, stder
+ 
 
 root_sources = os.environ['ROOTSOURCES']
 print("ROOT sources: ", root_sources)
@@ -25,6 +33,31 @@ pkg_path = os.environ['ROOT_PKG_PATH']
 print("ROOT packages installation path: ", pkg_path)
 pwd_path = os.getcwd()
 print("root-get location: ", pwd_path)
+
+os.chdir(pwd_path)
+path = pwd_path + "/withdep.py"
+file = "> math.yml"
+command = ['python3'] + [path] + [root_sources, 'math'] + [file]
+ 
+f = open("math.yml", "w")
+
+subprocess.run(command, stdout=f)
+
+try:
+    completed = subprocess.run(command, stdout=f)
+#    exit(completed.returncode)
+except: # Lower than python3.5
+    completed = subprocess.run(command, stdout=f)
+#    exit(completed[0])
+ 
+db_source = open("math.yml", "r")
+db_source = str(db_source)
+# path: math/quadp/
+#"""
+db_manifest = yaml.load(db_source)
+print(db_manifest)
+ 
+#os.remove('math.yml')
 
 for pkg in db_manifest:
   if "deps" in db_manifest[pkg].keys():
