@@ -6,7 +6,6 @@ import os
 import yaml
 import subprocess
 
-
 def subprocess_run(*popenargs, input=None, check=False, **kwargs):
     if input is not None:
         if 'stdin' in kwargs:
@@ -25,7 +24,7 @@ def subprocess_run(*popenargs, input=None, check=False, **kwargs):
         raise subprocess.CalledProcessError(
             retcode, process.args, output=stdout, stderr=stderr)
     return retcode, stdout, stder
- 
+
 
 root_sources = os.environ['ROOTSOURCES']
 print("ROOT sources: ", root_sources)
