@@ -1,23 +1,30 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import argparse
 import sys
 import os
 import yaml
+import subprocess
 
-db_source = """
-XMLIO:
- path: io/xml/
-MathCore:
- path: math/mathcore/
-Matrix:
- deps: MathCore
- path: math/matrix/
-Quadp:
- deps: Matrix
- path: math/quadp/
-"""
-db_manifest = yaml.load(db_source)
+def subprocess_run(*popenargs, input=None, check=False, **kwargs):
+    if input is not None:
+        if 'stdin' in kwargs:
+            raise ValueError('stdin and input arguments may not both be used.')
+        kwargs['stdin'] = subprocess.PIPE
+
+    process = subprocess.Popen(*popenargs, **kwargs)
+    try:
+        stdout, stderr = process.communicate(input)
+    except:
+        process.kill()
+        process.wait()
+        raise
+    retcode = process.poll()
+    if check and retcode:
+        raise subprocess.CalledProcessError(
+            retcode, process.args, output=stdout, stderr=stderr)
+    return retcode, stdout, stder
+
 
 root_sources = os.environ['ROOTSOURCES']
 print("ROOT sources: ", root_sources)
@@ -26,6 +33,29 @@ print("ROOT packages installation path: ", pkg_path)
 pwd_path = os.getcwd()
 print("root-get location: ", pwd_path)
 
+os.chdir(pwd_path)
+path = pwd_path + "/withdep.py"
+#file = "> math.yml"
+command = ['python3'] + [path] + [root_sources, 'math'] 
+ 
+#f = open("math.yml", "w")
+
+subprocess.run(command)
+
+#try:
+#   completed = subprocess.run(command, stdout=f)
+#    exit(completed.returncode)
+#except: # Lower than python3.5
+#    completed = subprocess.run(command, stdout=f)
+#    exit(completed[0])
+ 
+db_source = open("math.yml", "r")
+
+db_manifest = yaml.load(db_source)
+#print(db_manifest)
+ 
+#os.remove('math.yml')
+
 for pkg in db_manifest:
   if "deps" in db_manifest[pkg].keys():
     if type(db_manifest[pkg]["deps"]) == str:
@@ -33,8 +63,6 @@ for pkg in db_manifest:
   else:
     db_manifest[pkg]["deps"] = []
   db_manifest[pkg]["installed"] = os.path.isdir(os.path.join(pkg_path, pkg))
-
-print(db_manifest)
 
 def install_pkg(pkg):
   if pkg not in db_manifest.keys():
@@ -49,8 +77,9 @@ def install_pkg(pkg):
       return False
   print("Installing " + pkg)
   src_dir = db_manifest[pkg]["path"]
-  full_src_dir =root_sources + "/" + src_dir
-  ec = os.system(pwd_path + "/" + "build-pkg " + pkg + " " + full_src_dir)
+#  full_src_dir =root_sources + "/" + src_dir
+  ec = os.system(pwd_path + "/" + "build-pkg " + pkg + " " + src_dir)
+#  ec = os.system("build-pkg" + pkg + " " + full_src_dir)
   if ec != 0:
     print("Failed to install package")
     return False
