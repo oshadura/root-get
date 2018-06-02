@@ -28,6 +28,6 @@ echo -e "include(RootFramework)\n$(cat $target_cmake)" > "$target_cmake"
 mkdir build
 cd build
 
-cmake "-DCMAKE_INSTALL_PREFIX=$ROOT_PKG_PATH/$pkg_name" "-DCMAKE_MODULE_PATH=$ROOTSYS/etc/cmake" -DCMAKE_EXPORT_COMPILE_COMMANDS=On -GNinja  ../pkg-source
+cmake "-DCMAKE_INSTALL_PREFIX=$ROOT_PKG_PATH/$pkg_name" "-DCMAKE_MODULE_PATH=$ROOTSYS/etc/cmake" -DCMAKE_CXX_STANDARD="14" -DCMAKE_EXPORT_COMPILE_COMMANDS=On -GNinja  ../pkg-source
 cmake --build .
 cmake --install
