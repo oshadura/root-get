@@ -4,7 +4,7 @@ Experiments on trying to generate package DB for ROOT PM
 import yaml
 from generator.dbgenerator import *
 
-class Db4pkg(object):
+class Db4pkg():
     def __init__(self, db_dict=None):
         """ initializes a db object
         """
@@ -134,6 +134,12 @@ class Db4pkg(object):
         ROOTVecOps:
             deps: Matrix
             path: math/vecops/
+        TMVA:
+            path:
+        RInterface:
+            path:
+        ROOTGraphicsPrimitives:
+            path:
         """
         db_manifest = yaml.load(db_source)
         return db_manifest
@@ -152,6 +158,10 @@ class Db4pkg(object):
         """ Removing not needed keys, needed step for DAG
             FIXME: will not be needed for generated manifests
         """
-        pre_dag_db = db_manifest.pop('path', None)
-        pre_dag_db = db_manifest.pop('installed', None)
+        pre_dag_db  = {}
+        for i in db_manifest:
+            if 'deps' in db_manifest[i]:
+                pre_dag_db[i] = db_manifest[i]['deps'].split(' ')
+            else:
+                pre_dag_db[i] = []
         return pre_dag_db
