@@ -12,9 +12,16 @@ import json
 sys.path.append(os.getcwd())
 # Import classes from root-get directories
 from resolver import *
+from downloader.download_request import *
 from analyzer.path4pkg import *
 from integrator.zip4pkg import *
 
+from os.path import expanduser
+home = expanduser("~")
+
+os.environ["ROOT_PKG_CACHE"] = home + "/.cache/root-pkgs/"
+root_cache = os.environ["ROOT_PKG_CACHE"]
+print("root-get cache: ", root_cache)
 root_sources = os.environ['ROOTSOURCES']
 print("ROOT sources: ", root_sources)
 pkg_path = os.environ['ROOT_PKG_PATH']
@@ -52,11 +59,13 @@ def install_pkg(pkg):
     print("Failed to generate DB")
     return False
   # WIP
-  # dag_manifest = db.pre_dag(db_manifest)
+  dag_manifest = db.pre_dag(db_manifest)
   print json.dumps(db_manifest, indent = 4)
-  print("================================")
-  # WIP
-  #print json.dumps(dag_manifest, indent = 4)
+#
+# Download files
+#
+  download = Downloader_request("https://github.com/CocoaPods/CocoaPods", root_cache)
+  download.resolving_download()
 #
 # Parcing packages in db_manifest
 #
@@ -73,12 +82,16 @@ def install_pkg(pkg):
 # resolving DAG from db_manifest
 #
 # WIP
-  #dag = Dag4pkg()
-  #dag_graph = dag.from_dict(db_manifest)
-  #dag.topological_sort()
-  #if not dag_graph:
-    #print("Failed to generate Dag")
-    #return False
+  dag = Dag4pkg()
+  dag.from_dict(dag_manifest)
+  #try:
+  dag.topological_sort()
+  print(dag.all_leaves())
+  #except:
+  #print('-> Missing package: {0:s}'.format(traceback.print_exc()))
+  if not dag.validate()[0]:
+    print("Failed to generate Dag")
+    return False
 #
 # Buiding packages
 #
