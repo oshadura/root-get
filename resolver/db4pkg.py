@@ -2,6 +2,7 @@
 Experiments on trying to generate package DB for ROOT PM
 """
 import yaml
+from generator.dbgenerator import *
 
 class Db4pkg(object):
     def __init__(self, db_dict=None):
@@ -135,6 +136,16 @@ class Db4pkg(object):
             path: math/vecops/
         """
         db_manifest = yaml.load(db_source)
+        return db_manifest
+
+    def generated_manifest(self):
+        DBgen = Dbgenerator()
+        DBgen.dbgenerator()
+        with open("manifest.yml") as stream:
+            try:
+                db_manifest = yaml.load(stream)
+            except yaml.YAMLError as exc:
+                print(exc)
         return db_manifest
 
     def pre_dag(self, db_manifest):
