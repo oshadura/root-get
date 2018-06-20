@@ -147,6 +147,8 @@ class Db4pkg():
     def generated_manifest(self):
         DBgen = Dbgenerator()
         DBgen.dbgenerator()
+	global dbval
+	dbval = DBgen.clean_deps()
         with open("manifest.yml") as stream:
             try:
                 db_manifest = yaml.load(stream)
@@ -161,7 +163,8 @@ class Db4pkg():
         pre_dag_db  = {}
         for i in db_manifest:
             if 'deps' in db_manifest[i]:
-                pre_dag_db[i] = db_manifest[i]['deps'].split(' ')
+		if dbval=="deps":
+		    pre_dag_db[i] = db_manifest[i]['deps'].split(' ')
             else:
                 pre_dag_db[i] = []
         return pre_dag_db

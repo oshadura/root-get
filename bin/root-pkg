@@ -54,7 +54,8 @@ def install_pkg(pkg):
 # Building DB
 #
   db = Db4pkg()
-  db_manifest = db.hardcoded_db()
+#  db_manifest = db.hardcoded_db()
+  db_manifest = db.generated_manifest()
   if not db_manifest:
     print("Failed to generate DB")
     return False
