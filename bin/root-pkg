@@ -108,8 +108,6 @@ def install_pkg(pkg):
     md = [x.strip(' targets: ') for x in trgt]
 
     if get_close_matches(pkg,md):
-      #pkg = md[0]
-      #print("aa")
       pass
     else:
       sudopkg = pkg
