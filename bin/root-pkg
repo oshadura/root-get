@@ -6,6 +6,8 @@ import os
 import yaml
 import zipfile
 import json
+import re
+from difflib import get_close_matches
 
 # FIXME: We need to be in root-get home dir before calling this script
 # FIXME: pwd_path should be
@@ -98,6 +100,36 @@ def install_pkg(pkg):
 #
 # Buiding packages
 #
+  rule = re.compile('.*targets:.*')
+
+  with open(pwd_path+"/manifest.yml") as t:
+    fl = t.read()
+    trgt = rule.findall(fl)
+    md = [x.strip(' targets: ') for x in trgt]
+
+    if get_close_matches(pkg,md):
+      #pkg = md[0]
+      #print("aa")
+      pass
+    else:
+      sudopkg = pkg
+      if sudopkg.islower():
+        sudopkg = sudopkg.upper()
+        if get_close_matches(sudopkg,md):
+          pkg = sudopkg
+          print("did you mean " + pkg + " ?")
+          pass
+      elif sudopkg.isupper():
+        sudopkg = sudopkg.lower()
+        if get_close_matches(sudopkg,md):
+          pkg = sudopkg
+          print("did you mean " + pkg + " ?")
+          pass
+      else:
+        """To get mixed case chars"""
+        if get_close_matches(pkg,md,cutoff=0.5):
+          pkg = md[0]
+
   if pkg not in db_manifest.keys():
     print("Can't find package " + pkg)
     return False
