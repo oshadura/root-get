@@ -1,4 +1,8 @@
-import wget, os, urllib2, re, zipfile
+import os
+import re
+import zipfile
+import wget
+import urllib2
 from git import Repo
 
 class Downloader_request(object):
@@ -25,11 +29,11 @@ class Downloader_request(object):
             try:
                 zip_file = zipfile.ZipFile(filename)
             except zipfile.BadZipfile as ex:
-                print "%s no a zip file" % file
+                print("%s no a zip file" % file)
 
     def resolving_download(self):
         request = urllib2.Request(self.url)
-        request.get_method = lambda : 'HEAD'
+        request.get_method = lambda: 'HEAD'
         try:
             response = urllib2.urlopen(request)
         except urllib2.HTTPError:
