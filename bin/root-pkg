@@ -187,8 +187,6 @@ def do_install(args):
 
 #########################################################
 def do_list(args):
-  db = Db4pkg()
-  db_manifest = db.generated_manifest()
   for pkg in list(db_manifest.keys()):
     print(pkg)
   pass
