@@ -20,8 +20,8 @@ class Path4pkg(object):
             dirs[:] = [d for d in dirs if d not in non_acceptable_dirs]
             depth = dirpath.count(os.path.sep) - root_depth
             if mindepth <= depth < maxdepth:
-                if((dirname in dirs) or (dirname.strip("io") in dirs)):
-                    if(dirname in directory_exceptions):
+                if dirname in dirs or dirname.strip("io") in dirs:
+                    if dirname in directory_exceptions:
                         return os.path.join(dirpath, dirname)
                     else:
                         return os.path.join(dirpath, dirname.strip("io"))

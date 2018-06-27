@@ -1,6 +1,7 @@
 """ A Zip4pkg class
 Experiments on trying to generate package for ROOT PM
 """
+import os
 import zipfile
 
 class Zip4pkg(object):

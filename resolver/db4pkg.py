@@ -145,13 +145,13 @@ class Db4pkg():
         return db_manifest
 
     def generated_manifest(self):
-        if(not os.path.exists('./manifest.yml')):
+        if not os.path.exists('./manifest.yml'):
             print("[root-get] No manifest file..weird, please check what could be wrong with generation.")
             open('manifest.yml', 'a').close()
         DBgen = Dbgenerator()
         DBgen.dbgenerator()
-	global dbval
-	dbval = DBgen.clean_deps()
+        global db_value
+        db_value = DBgen.clean_deps()
         db_manifest = []
         with open("manifest.yml") as stream:
             try:
@@ -164,11 +164,11 @@ class Db4pkg():
         """ Removing not needed keys, needed step for DAG
             FIXME: will not be needed for generated manifests
         """
-        pre_dag_db  = {}
+        pre_dag_db = {}
         for i in db_manifest:
             if 'deps' in db_manifest[i]:
-		if dbval=="deps":
-		    pre_dag_db[i] = db_manifest[i]['deps'].split(' ')
+                if db_value == "deps":
+                    pre_dag_db[i] = db_manifest[i]['deps'].split(' ')
             else:
                 pre_dag_db[i] = []
         return pre_dag_db
