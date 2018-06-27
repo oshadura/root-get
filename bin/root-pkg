@@ -36,35 +36,6 @@ def install_pkg(pkg):
 #
 # Checkout packages if we have them in ROOT
 #
-  rule_name = re.compile('.*name:.*')
-  os.system("find " + root_sources + " -iname \*" + pkg + "\* > temp.txt")
-  with open("temp.txt") as t:
-    fe = t.read()
-    fe = fe.strip("\n")
-    with open(fe) as f:
-      #print(f.read())
-      f2 = f.read()
-      f2 = f2.strip("\n")
-      names = rule_name.findall(f2)
-      #print(names)
-      parcing_rule_name = [x.strip(' name: ') for x in names]
-#      print(parcing_rule_name)
-      if parcing_rule_name:
-        if parcing_rule_name[0] == pkg:
-          pass
-        else:
-          print("did you mean " + parcing_rule_name[0] + " ?")
-          #print("please enter Y/N...")
-          inp = raw_input("please enter Y/N...")
-        #a = str(a)
-          if inp=="Y" or inp=="y":
-            pkg = parcing_rule_name[0]
-          else:
-            exit(0)
-
-  os.remove("temp.txt")
-
-#  os.system(pwd_path+"/bin/scr " + pkg)
   check_package = os.system('find %s -maxdepth 1 -type d  -name "%s" ! -path "*tutorials*" ! -path "*dictpch*"' % (root_sources, pkg))
   check_module = os.system('find %s -mindepth 2 -type d  -name "%s" ! -path "*tutorials*" ! -path "*dictpch*"' % (root_sources, pkg))
   if check_module != 0:
@@ -140,7 +111,6 @@ def install_pkg(pkg):
 #
 # Buiding packages
 #
-  """ Use of newly generated manifest.yml for pkg name check
   rule = re.compile('.*targets:.*')
 
   with open(pwd_path + "/manifest.yml") as t:
@@ -166,9 +136,11 @@ def install_pkg(pkg):
           print("[root-get] did you mean " + pkg + " ?")
           pass
       else:
-         # To get mixed case chars
-        if get_close_matches(pkg,md,cutoff=0.5):
-          pkg = md[0]"""
+        """To get mixed case chars"""
+        if get_close_matches(pkg, md, cutoff=0.5):
+          print("[root-get] We have mixed-symbol name of package {0:s}, it is OK".format(pkg))
+          #FIXME: wrong, it just selecting first symbol!
+          #pkg = md[0]
 
   print("[root-get] Checking package DB keys available in root-get: {0:s}".format(db_manifest.keys()))
   if pkg not in db_manifest.keys():
