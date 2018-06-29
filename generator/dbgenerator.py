@@ -21,54 +21,66 @@ class Dbgenerator(object):
         rule_targets = re.compile('.*targets:.*')
         rule_deps = re.compile('.*deps:.*')
 
-        for subdir, dirs, files in os.walk(rootdir):
-            for file in files:
-            	if file == "module.yml":
-                    module_file_path = os.path.join(subdir, file)
-                    with open(module_file_path) as filepath:
-                        fp_read = filepath.read()
-                        names = rule_name.findall(fp_read)
-                        parcing_rule_name = [x.strip(' name: ') for x in names]
-                        if parcing_rule_name:
-                            manifest_file = open("manifest.yml", 'a')
-                            manifest_file.write(",".join(parcing_rule_name))
-                            manifest_file.write(":")
-                            manifest_file.write("\n")
-                        rule_package_url_check = rule_package_url.findall(fp_read)
-                        if rule_package_url_check:
-                            manifest_file = open("manifest.yml", 'a')
-                            manifest_file.write(",".join(rule_package_url_check))
-                            manifest_file.write("\n")
-                        rule_tag_check = rule_tag.findall(fp_read)
-                        if rule_tag_check:
-                            manifest_file = open("manifest.yml", 'a')
-                            manifest_file.write(",".join(rule_tag_check))
-                            manifest_file.write("\n")
-                        rule_path_check = rule_path.findall(fp_read)
-                        if rule_path_check:
-                            manifest_file = open("manifest.yml", 'a')
-                            manifest_file.write(",".join(rule_path_check))
-                            manifest_file.write("\n")
-                        rule_ph_check = rule_ph.findall(fp_read)
-                        if rule_ph_check:
-                            manifest_file = open("manifest.yml", 'a')
-                            manifest_file.write(",".join(rule_ph_check))
-                            manifest_file.write("\n")
-                        rule_sources_check = rule_sources.findall(fp_read)
-                        if rule_sources_check:
-                            manifest_file = open("manifest.yml", 'a')
-                            manifest_file.write(",".join(rule_sources_check))
-                            manifest_file.write("\n")
-                        rule_targets_check = rule_targets.findall(fp_read)
-                        if rule_targets_check:
-                            manifest_file = open("manifest.yml", 'a')
-                            manifest_file.write(",".join(rule_targets_check))
-                            manifest_file.write("\n")
-                        rule_deps_check = rule_deps.findall(fp_read)
-                        if rule_deps_check:
-                            manifest_file = open("manifest.yml", 'a')
-                            manifest_file.write(",".join(rule_deps_check))
-                            manifest_file.write("\n")
+        if os.path.isfile("manifest.yml"):
+            infile = "manifest.yml"
+            s = set()
+            with open('temp.yml', 'w') as out:
+                for line in open(infile):
+                    if line not in s:
+                        out.write(line)
+                        s.add(line)
+        else:
+            for subdir, dirs, files in os.walk(rootdir):
+                for file in files:
+            	    if file == "module.yml":
+                        module_file_path = os.path.join(subdir, file)
+                        with open(module_file_path) as filepath:
+                            fp_read = filepath.read()
+                            names = rule_name.findall(fp_read)
+                            parcing_rule_name = [x.strip(' name: ') for x in names]
+                            if parcing_rule_name:
+                                manifest_file = open("manifest.yml", 'a')
+                                manifest_file.write(",".join(parcing_rule_name))
+                                manifest_file.write(":")
+                                manifest_file.write("\n")
+                            rule_package_url_check = rule_package_url.findall(fp_read)
+                            if rule_package_url_check:
+                                manifest_file = open("manifest.yml", 'a')
+                                manifest_file.write(",".join(rule_package_url_check))
+                                manifest_file.write("\n")
+                            rule_tag_check = rule_tag.findall(fp_read)
+                            if rule_tag_check:
+                                manifest_file = open("manifest.yml", 'a')
+                                manifest_file.write(",".join(rule_tag_check))
+                                manifest_file.write("\n")
+                            rule_path_check = rule_path.findall(fp_read)
+                            if rule_path_check:
+                                manifest_file = open("manifest.yml", 'a')
+                                manifest_file.write(",".join(rule_path_check))
+                                manifest_file.write("\n")
+                            rule_ph_check = rule_ph.findall(fp_read)
+                            if rule_ph_check:
+                                manifest_file = open("manifest.yml", 'a')
+                                manifest_file.write(",".join(rule_ph_check))
+                                manifest_file.write("\n")
+                            rule_sources_check = rule_sources.findall(fp_read)
+                            if rule_sources_check:
+                                manifest_file = open("manifest.yml", 'a')
+                                manifest_file.write(",".join(rule_sources_check))
+                                manifest_file.write("\n")
+                            rule_targets_check = rule_targets.findall(fp_read)
+                            if rule_targets_check:
+                                manifest_file = open("manifest.yml", 'a')
+                                manifest_file.write(",".join(rule_targets_check))
+                                manifest_file.write("\n")
+                            rule_deps_check = rule_deps.findall(fp_read)
+                            if rule_deps_check:
+                                manifest_file = open("manifest.yml", 'a')
+                                manifest_file.write(",".join(rule_deps_check))
+                                manifest_file.write("\n")
+
+        if os.path.isfile('temp.yml'):
+            os.remove('temp.yml')
 
     def clean_deps(self):
         workdir = os.getcwd()

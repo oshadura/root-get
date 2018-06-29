@@ -52,6 +52,30 @@ def install_pkg(pkg):
     if ecanalyze != 0:
         print("[root-get] Failed to configure package")
         return False
+
+    rule_name = re.compile('.*name:.*') 
+
+    rootdir = home + "/.cache/root-pkgs/" + pkg + "/pkg-source/"
+    for subdir, dirs, files in os.walk(rootdir):
+        for file in files:
+            if file == "module.yml":
+                module_file_path = os.path.join(subdir, file)
+                with open(module_file_path) as filepath:
+                    fp_read = filepath.read()
+                    names = rule_name.findall(fp_read)
+                    new_name = [x.replace('"','') for x in names]
+                    parcing_rule_name = [x.strip(' name: ') for x in new_name]
+                    print(parcing_rule_name[0])
+                    if parcing_rule_name:
+                        sdpkg = parcing_rule_name[0]
+                        
+    print("Did you mean " + sdpkg + "? ")
+    a = raw_input("Enter Y/N...")
+    if a == "Y" or a == "y":
+    	pkg = sdpkg
+    else:
+    	exit(0)
+
 #
 # Building DB
 #

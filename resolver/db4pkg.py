@@ -147,7 +147,7 @@ class Db4pkg():
     def generated_manifest(self):
         if not os.path.exists('./manifest.yml'):
             print("[root-get] No manifest file..weird, please check what could be wrong with generation.")
-            open('manifest.yml', 'a').close()
+            #open('manifest.yml', 'a').close()
         DBgen = Dbgenerator()
         DBgen.dbgenerator()
         global db_value
