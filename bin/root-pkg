@@ -16,6 +16,7 @@ sys.path.append(os.getcwd())
 from resolver import *
 from downloader.download_request import *
 from analyzer.path4pkg import *
+from analyzer.namelist import *
 from integrator.zip4pkg import *
 
 # Enviroment variables
@@ -192,15 +193,17 @@ def do_list(args):
 
 #########################################################
 def do_search(args):
-    print(args)
-    pass
+    listing = Namelisting()
+    listing.namelist(args[0])
 
 #########################################################
+
 actions = {
     "-i" : do_install,
     "--install" : do_install,
     "-l" : do_list,
     "--list" : do_list,
+    "-s" : do_search,
 }
 
 if sys.argv[1] in actions.keys():
