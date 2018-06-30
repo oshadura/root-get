@@ -67,14 +67,14 @@ def install_pkg(pkg):
                     parcing_rule_name = [x.strip(' name: ') for x in new_name]
                     print(parcing_rule_name[0])
                     if parcing_rule_name:
-                        sdpkg = parcing_rule_name[0]
+                        pkg = parcing_rule_name[0]
                         
-    print("Did you mean " + sdpkg + "? ")
-    a = raw_input("Enter Y/N...")
-    if a == "Y" or a == "y":
-    	pkg = sdpkg
-    else:
-    	exit(0)
+#    print("Did you mean " + parcing_rule_name[0] + "? ")
+#    a = raw_input("Enter Y/N...")
+#    if a == "Y" or a == "y":
+#    	pkg = parcing_rule_name[0]
+#    else:
+#    	exit(0)
 
 #
 # Building DB
