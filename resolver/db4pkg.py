@@ -147,13 +147,28 @@ class Db4pkg():
     def generated_manifest(self):
         if not os.path.exists('./manifest.yml'):
             print("[root-get] No manifest file..weird, please check what could be wrong with generation.")
-            open('manifest.yml', 'a').close()
+            #open('manifest.yml', 'a').close()
         DBgen = Dbgenerator()
         DBgen.dbgenerator()
         global db_value
         db_value = DBgen.clean_deps()
         db_manifest = []
         with open("manifest.yml") as stream:
+            try:
+                db_manifest = yaml.load(stream)
+            except yaml.YAMLError as exc:
+                print(exc)
+        return db_manifest
+
+    def generated_manifest_pkg(self, arg):
+        if not os.path.exists('./pkg_manifest.yml'):
+            print("[root-get] No pkg_manifest file..weird, please check what could be wrong with generation.")
+        DBgen = Dbgenerator()
+        DBgen.manifest_generator(arg)
+        global db_value
+        db_value = DBgen.clean_deps_pkg()
+        db_manifest = []
+        with open("pkg_manifest.yml") as stream:
             try:
                 db_manifest = yaml.load(stream)
             except yaml.YAMLError as exc:

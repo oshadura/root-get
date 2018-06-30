@@ -59,7 +59,9 @@ def install_pkg(pkg):
     db = Db4pkg()
     """ We can use either db.hardcoded_db() or db.generated_manifest()."""
 #    db_manifest = db.hardcoded_db()
-    db_manifest = db.generated_manifest()
+#    db_manifest = db.generated_manifest()
+    package = raw_input("Enter package_name...")
+    db_manifest = db.generated_manifest_pkg(package)
     if not db_manifest:
         print("[root-get] Failed to generate DB")
         return False
