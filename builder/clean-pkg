@@ -15,7 +15,7 @@ fi
 
 pkg_name="$1"
 cd ~/.cache/root-pkgs/$pkg_name
+
 cd build
 
-ninja -v
-ninja install
+rm -rf *
