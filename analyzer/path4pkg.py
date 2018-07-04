@@ -1,16 +1,20 @@
-""" A Path4pkg class
-Experiments on trying to generate package for ROOT PM
+""" A PathChecker class
+        Helper that we try to use to generate package/module path
+        for ROOT packages/modules for ROOT PM. Here we use a concept
+        that each $ROOTSYS/{directory} is a package and directories deeper are modules.
 """
+
 import os
 
-class Path4pkg(object):
-    """docstring for Path4pkg."""
+class PathChecker(object):
+    """ PathChecker class """
     def __init__(self, arg=None):
-        super(Path4pkg, self).__init__()
+        super(PathChecker, self).__init__()
         self.arg = arg
 
-    def path4pkg(self, dirname, directory='', mindepth=2, maxdepth=float('inf')):
-        # FIXME: path4pkg is working as expected, but ROUTSOURCES path can't finish with "/"
+    @classmethod
+    def path4module(cls, dirname, directory='', mindepth=2, maxdepth=float('inf')):
+        """ Function checking a "walking/search" functionality for ROOT modules"""
         directory = os.path.normcase(directory)
         dirname = dirname.lower()
         non_acceptable_dirs = set(['tutorials', 'test', 'interpreter', 'dictpch'])
@@ -22,10 +26,27 @@ class Path4pkg(object):
             if mindepth <= depth < maxdepth:
                 if dirname in dirs or dirname.strip("io") in dirs:
                     if dirname in directory_exceptions:
-                        return os.path.join(dirpath, dirname)
+                        path = os.path.join(dirpath, dirname)
                     else:
-                        return os.path.join(dirpath, dirname.strip("io"))
-                #raise Exception('We work only with ROOT modules by now')
+                        path = os.path.join(dirpath, dirname.strip("io"))
+                    return path
             elif depth > maxdepth:
                 del dirs[:] # too deep, don't recurse
-            #raise Exception('Exist only package with such name!')
+
+    @classmethod
+    def path4pkg(cls, dirname, directory='', mindepth=1, maxdepth=float('inf')):
+        """ Function checking a "walking/search" functionality for ROOT packages"""
+        directory = os.path.normcase(directory)
+        dirname = dirname.lower()
+        non_acceptable_dirs = set(['tutorials', 'test', 'interpreter', 'dictpch'])
+        root_depth = directory.rstrip(os.path.sep).count(os.path.sep) - 1
+        for dirpath, dirs in os.walk(directory):
+            dirs[:] = [d for d in dirs if d not in non_acceptable_dirs]
+            depth = dirpath.count(os.path.sep) - root_depth
+            if mindepth <= depth < maxdepth:
+                if dirname in dirs:
+                    return os.path.join(dirpath, dirname)
+                else:
+                    raise Exception('We work only with ROOT modules by now')
+            elif depth > maxdepth:
+                del dirs[:] # too deep, don't recurse
