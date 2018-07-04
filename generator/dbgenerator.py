@@ -106,7 +106,7 @@ class Dbgenerator(object):
                 pkg_manifest_file = open("pkg_manifest.yml", 'a')
                 pkg_manifest_file.write(parcing_rule_name[0])
                 pkg_manifest_file.write(":\n")
-        
+
             if rule_tag_check:
                 pkg_manifest_file = open("pkg_manifest.yml", 'a')
                 pkg_manifest_file.write(rule_tag_check[0])
@@ -123,7 +123,7 @@ class Dbgenerator(object):
                 pkg_manifest_file.write(" products: ")
                 pkg_manifest_file.write(parcing_rule_name[2])
                 pkg_manifest_file.write("\n")
-                
+
             """Iterating over the rule lists"""
             for i in range(3,module_len):
                 pkg_manifest_file = open("pkg_manifest.yml", 'a')
@@ -183,4 +183,3 @@ class Dbgenerator(object):
                 return "no_deps"
             else:
                 return "deps"
-
