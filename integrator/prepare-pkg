@@ -18,15 +18,8 @@ cd ~/.cache/root-pkgs/$pkg_name
 archive_dir="${pkg_name}_package_source"
 mkdir $archive_dir
 
-###
-# Copying includes
-cp -R build/inc $archive_dir
-# Copying includes
-cp -R build/lib* $archive_dir
-# Copying rootmap
-cp -R build/*.rootmap  $archive_dir
-# Copying pcms
-cp -R build/*.pcm  $archive_dir
+cp -R install/* $archive_dir
+
 # Copying README
 cp -R $ROOTSYS/README $archive_dir
 # Copying LICENSE
