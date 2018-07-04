@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+
+set -e
+
+if [ -z "$ROOT_PKG_PATH" ]
+then
+  echo "ROOT_PKG_PATH not set"
+  exit 1
+fi
+
+if [ -z "$ROOTSYS" ]
+then
+  echo "ROOTSYS not set"
+  exit 1
+fi
+
+pkg_name="$1"
+
+if [ "$pkg_name" == "XMLIO" ]
+then
+   root.exe -b -e "gSystem->AddDynamicPath(\"/home/oksana/CERN/rootbase-chep2018/packages/XMLIO/\");" -e "gSystem->Load(\"libXMLIO\");"
+   #echo "Running micro-test was succesful: root.exe -e ||#include TXMLFile.h|| -e ||TXMLFile xmlfile;||"
+elif [ "$pkg_name" == "XMLParser" ]
+then
+   root.exe -b -e "gSystem->AddDynamicPath(\"/home/oksana/CERN/rootbase-chep2018/packages/XMLParser/\");" -e "gSystem->AddDynamicPath(\"/usr/include/libxml2/\");" -e "gSystem->Load(\"/usr/lib/x86_64-linux-gnu/libxml2.so\");" -e "gSystem->Load(\"libXMLParser\");"
+   #echo "Running micro-test was succesful: root.exe -e ||#include TDOMParser.h|| -e ||TDOMParser xmlDOMparser;||"
+fi
