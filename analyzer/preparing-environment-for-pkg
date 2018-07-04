@@ -35,4 +35,4 @@ echo -e "cmake_minimum_required(VERSION 3.7)\n$(cat $target_cmake)" > "$target_c
 mkdir build
 cd build
 
-cmake "-DCMAKE_INSTALL_PREFIX=$ROOT_PKG_PATH/$pkg_name" "-DCMAKE_MODULE_PATH=$ROOTSYS/etc/cmake" -DCMAKE_EXPORT_COMPILE_COMMANDS=On -DCMAKE_CXX_STANDARD=14 -GNinja  ../pkg-source
+cmake "-DCMAKE_INSTALL_PREFIX=~/.cache/root-pkgs/$pkg_name/install" "-DCMAKE_MODULE_PATH=$ROOTSYS/etc/cmake" "-DCMAKE_EXPORT_COMPILE_COMMANDS=On" "-DCMAKE_CXX_STANDARD=14" "-GNinja"  ../pkg-source
