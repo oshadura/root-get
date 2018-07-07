@@ -5,11 +5,14 @@ import re
 home = expanduser("~")
 
 class Dbgenerator(object):
+    """DBgenerator class"""
     def __init__(self, arg=None):
         super(Dbgenerator, self).__init__()
         self.arg = arg
 
+    @classmethod
     def dbgenerator(self):
+        """Function to generate module manifest 'yml' file"""
         rootdir = home + "/.cache/root-pkgs/"
         """ Set of rules to be used for generator of package DB """
         rule_name = re.compile('.*name:.*')
@@ -23,7 +26,7 @@ class Dbgenerator(object):
 
         for subdir, dirs, files in os.walk(rootdir):
             for file in files:
-            	if file == "module.yml":
+                if file == "module.yml":
                     module_file_path = os.path.join(subdir, file)
                     with open(module_file_path) as filepath:
                         fp_read = filepath.read()
@@ -34,43 +37,53 @@ class Dbgenerator(object):
                             manifest_file.write(",".join(parcing_rule_name))
                             manifest_file.write(":")
                             manifest_file.write("\n")
+                            manifest_file.close()
                         rule_package_url_check = rule_package_url.findall(fp_read)
                         if rule_package_url_check:
                             manifest_file = open("manifest.yml", 'a')
                             manifest_file.write(",".join(rule_package_url_check))
                             manifest_file.write("\n")
+                            manifest_file.close()
                         rule_tag_check = rule_tag.findall(fp_read)
                         if rule_tag_check:
                             manifest_file = open("manifest.yml", 'a')
                             manifest_file.write(",".join(rule_tag_check))
                             manifest_file.write("\n")
+                            manifest_file.close()
                         rule_path_check = rule_path.findall(fp_read)
                         if rule_path_check:
                             manifest_file = open("manifest.yml", 'a')
                             manifest_file.write(",".join(rule_path_check))
                             manifest_file.write("\n")
+                            manifest_file.close()
                         rule_ph_check = rule_ph.findall(fp_read)
                         if rule_ph_check:
                             manifest_file = open("manifest.yml", 'a')
                             manifest_file.write(",".join(rule_ph_check))
                             manifest_file.write("\n")
+                            manifest_file.close()
                         rule_sources_check = rule_sources.findall(fp_read)
                         if rule_sources_check:
                             manifest_file = open("manifest.yml", 'a')
                             manifest_file.write(",".join(rule_sources_check))
                             manifest_file.write("\n")
+                            manifest_file.close()
                         rule_targets_check = rule_targets.findall(fp_read)
                         if rule_targets_check:
                             manifest_file = open("manifest.yml", 'a')
                             manifest_file.write(",".join(rule_targets_check))
                             manifest_file.write("\n")
+                            manifest_file.close()
                         rule_deps_check = rule_deps.findall(fp_read)
                         if rule_deps_check:
                             manifest_file = open("manifest.yml", 'a')
                             manifest_file.write(",".join(rule_deps_check))
                             manifest_file.write("\n")
+                            manifest_file.close()
 
+    @classmethod
     def manifest_generator(self, arg):
+        """Function to generate package manifest 'yml' file"""
         rootdir = os.environ['ROOTSYS']
 
         """ Set of rules to be used for generator of package DB """
@@ -125,7 +138,7 @@ class Dbgenerator(object):
                 pkg_manifest_file.write("\n")
 
             """Iterating over the rule lists"""
-            for i in range(3,module_len):
+            for i in range(3, module_len + 3):
                 pkg_manifest_file = open("pkg_manifest.yml", 'a')
                 pkg_manifest_file.write(" " + parcing_rule_name[i] + ":\n")
                 pkg_manifest_file.write(" " + rule_package_url_check[i-3] + "\n")
@@ -136,7 +149,9 @@ class Dbgenerator(object):
                 pkg_manifest_file.write(" " + rule_targets_check[i-2] + "\n")
                 pkg_manifest_file.write(" " + rule_deps_check[i-3] + "\n")
 
+    @classmethod
     def clean_deps(self):
+        """Function to remove RIO, Core from deps(present by default)"""
         workdir = os.getcwd()
         rule_deps = re.compile(".*deps:.*")
 
@@ -150,8 +165,22 @@ class Dbgenerator(object):
         with open(workdir+"/manifest.yml", 'w') as manifest_file:
             manifest_file.write(read_manifest)
 
+        norepeat_list = []
+
+        infile = open('manifest.yml')
+        for line in infile:
+            line = line.strip("\n")
+            if line not in norepeat_list:
+                norepeat_list.append(line)
+        infile.close()
+
+        outfile = open('./manifest.yml', 'w')
+        for line in norepeat_list:
+            outfile.write(line + "\n")
+        outfile.close()
+
         with open(workdir+"/manifest.yml") as manifest_file:
-            file_list = manifest_file.readlines()
+            manifest_file.readlines()
             manifest_read = manifest_file.read()
             rule_deps_check = rule_deps.findall(manifest_read)
             rule_deps_check = [x.strip(' deps: ') for x in rule_deps_check]
@@ -160,7 +189,9 @@ class Dbgenerator(object):
             else:
                 return "deps"
 
+    @classmethod
     def clean_deps_pkg(self):
+        """Function to remove RIO, Core from deps(present by default)"""
         workdir = os.getcwd()
         rule_deps = re.compile(".*deps:.*")
 
@@ -174,8 +205,22 @@ class Dbgenerator(object):
         with open(workdir+"/pkg_manifest.yml", 'w') as manifest_file:
             manifest_file.write(read_manifest)
 
+        norepeat_list = []
+
+        infile = open('pkg_manifest.yml')
+        for line in infile:
+            line = line.strip("\n")
+            if line not in norepeat_list:
+                norepeat_list.append(line)
+        infile.close()
+
+        outfile = open('./pkg_manifest.yml', 'w')
+        for line in norepeat_list:
+            outfile.write(line + "\n")
+        outfile.close()
+
         with open(workdir+"/pkg_manifest.yml") as manifest_file:
-            file_list = manifest_file.readlines()
+            manifest_file.readlines()
             manifest_read = manifest_file.read()
             rule_deps_check = rule_deps.findall(manifest_read)
             rule_deps_check = [x.strip(' deps: ') for x in rule_deps_check]
