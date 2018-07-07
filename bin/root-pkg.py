@@ -337,9 +337,18 @@ def do_install(args):
 
 #########################################################
 def do_list(args):
-    for pkg in list(db_manifest.keys()):
-        print(pkg)
-    pass
+    if not os.path.exists(ROOT_CACHE + args[0]):
+        print("Package not installed yet. Please check installation.")
+    else:
+        db = Db4pkg()
+        db_manifest = db.generated_manifest()
+        print("Installed modules are : ")
+        for pkg in list(db_manifest.keys()):
+            print(pkg)
+        choice = raw_input("For module attributes, enter 'Y' else 'N' ...")
+        if choice == "Y":
+            print(db_manifest)
+        pass
 
 #########################################################
 def do_search(args):

@@ -1,15 +1,17 @@
 import re
 import os
-import linecache
 import itertools
 
 
 class Namelisting(object):
+    """Namelisting class"""
     def __init__(self, arg=None):
         super(Namelisting, self).__init__()
         self.arg = arg
 
+    @classmethod
     def namelist(self, arg):
+        """Function to show available packages and modules if present"""
         path = os.environ['ROOTSYS']
         name_rule = re.compile('.*name:.*')
         module_list = []
@@ -21,7 +23,7 @@ class Namelisting(object):
                     module_file_path = os.path.join(subdir, file)
                     num_lines = sum(1 for line in open(module_file_path))
                     with open(module_file_path) as filepath:
-                        for pkg_line in itertools.islice(filepath, 0, 9):
+                        for pkg_line in itertools.islice(filepath, 2, 6):
                             names = name_rule.findall(pkg_line)
                             parcing_rule_name = [x.strip(' name: ') for x in names]
                             if parcing_rule_name:
@@ -32,10 +34,16 @@ class Namelisting(object):
                             if parcing_rule_name:
                                 module_list.append(parcing_rule_name)
 
-        print("Avaiable packages : ")
-        for i in range(len(pkg_list)):
-            print(pkg_list[i][0])
+        if not pkg_list:
+            print("No packages to show.")
+        else:
+            print("Avaiable packages : ")
+            for i in range(len(pkg_list)):
+                print(pkg_list[i][0])
 
-        print("Avaiable modules : ")
-        for i in range(len(module_list)):
-            print(module_list[i][0])
+        if not module_list:
+            print("No modules to show.")
+        else:
+            print("Avaiable modules : ")
+            for i in range(len(module_list)):
+                print(module_list[i][0])
