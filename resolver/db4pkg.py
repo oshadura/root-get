@@ -165,10 +165,13 @@ class Db4pkg():
             FIXME: will not be needed for generated manifests
         """
         pre_dag_db = {}
-        for i in db_manifest:
-            if 'deps' in db_manifest[i]:
-                if db_value == "deps":
-                    pre_dag_db[i] = db_manifest[i]['deps'].split(' ')
-            else:
-                pre_dag_db[i] = []
+        try:
+            for i in db_manifest:
+                if 'deps' in db_manifest[i]:
+                    if db_value == "deps":
+                        pre_dag_db[i] = db_manifest[i]['deps'].split(' ')
+                else:
+                    pre_dag_db[i] = []
+        except:
+            pass
         return pre_dag_db

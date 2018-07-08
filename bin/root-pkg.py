@@ -32,7 +32,6 @@ print("[root-get] ROOT packages installation path: {0:s}".format(PKG_PATH))
 PWD_PATH = os.getcwd()
 print('[root-get] root-get location: {0:s}'.format(PWD_PATH))
 
-
 def check_package_path(pkg):
     """ Checking names of packages
         We are considering here that "packages" are parent directories of modules
@@ -70,7 +69,11 @@ def analizer_package(pkg, src_dir_root):
     """ Extention of package/module CMake files out of existing in ROOT
         We are adopting modules to be able to build packages outside of ROOT."""
     print("[root-get] DEBUG: Preparing environment for package")
-    ecanalyze = os.system(PWD_PATH + "/analyzer/preparing-environment-for-pkg " + pkg + " " + src_dir_root)
+    ecanalyze = 0
+    try:
+        ecanalyze = os.system(PWD_PATH + "/analyzer/preparing-environment-for-pkg " + pkg + " " + src_dir_root)
+    except:
+        pass
     if ecanalyze != 0:
         print("[root-get] Failed to configure package")
         return False
@@ -120,13 +123,16 @@ def dag_pre_generation(db_manifest):
 
 def parser_db_manifest(db_manifest):
     print("[root-get] DEBUG: Parsing DB manifest")
-    for pkg_index in db_manifest:
-        if "deps" in db_manifest[pkg_index]:
-            if isinstance(db_manifest[pkg_index]["deps"], str):
-                db_manifest[pkg_index]["deps"] = db_manifest[pkg_index]["deps"].split()
-        else:
-            db_manifest[pkg_index]["deps"] = []
-        db_manifest[pkg_index]["installed"] = os.path.isdir(os.path.join(PKG_PATH, pkg_index))
+    try:
+        for pkg_index in db_manifest:
+            if "deps" in db_manifest[pkg_index]:
+                if isinstance(db_manifest[pkg_index]["deps"], str):
+                    db_manifest[pkg_index]["deps"] = db_manifest[pkg_index]["deps"].split()
+            else:
+                db_manifest[pkg_index]["deps"] = []
+            db_manifest[pkg_index]["installed"] = os.path.isdir(os.path.join(PKG_PATH, pkg_index))
+    except:
+        pass
     return db_manifest
 
 def generation_lock_file_from_dag(dag_manifest):
@@ -148,15 +154,18 @@ def generation_lock_file_from_dag(dag_manifest):
 def resolver_dependencies(pkg, db_manifest):
     """ resolving dependencies without DAG """
     print("[root-get] DEBUG: Resolving dependencies without DAG: direct strategy")
-    if db_manifest[pkg]["deps"] is not None:
-        for dep in db_manifest[pkg]["deps"]:
-            print("[root-get] Installing dependency " + dep)
-            if not install_dep_pkg(dep, db_manifest):
-                return False
-            else:
-                print("[root-get] Dependency {0:s} is sucessfully installed and deployed".format(dep))
-    else:
-        print("[root-get] No dependencies for {0:s} ".format(pkg))
+    try:
+        if db_manifest[pkg]["deps"] is not None:
+            for dep in db_manifest[pkg]["deps"]:
+                print("[root-get] Installing dependency " + dep)
+                if not install_dep_pkg(dep, db_manifest):
+                    return False
+                else:
+                    print("[root-get] Dependency {0:s} is sucessfully installed and deployed".format(dep))
+        else:
+            print("[root-get] No dependencies for {0:s} ".format(pkg))
+    except:
+        pass
 
 def naming_checker(pkg):
     print("[root-get] DEBUG: Fixing name of package in case we printed it in a wrong way.")
@@ -190,16 +199,22 @@ def naming_checker(pkg):
 
 def check_pkg_db(pkg, db_manifest):
     print("[root-get] DEBUG: Checking package in DB")
-    print("[root-get] Checking package DB keys available in root-get: {0:s}".format(db_manifest.keys()))
-    if pkg not in db_manifest.keys():
-        print("[root-get] Can't find package {0:s} in DB".format(pkg))
-        return False
+    try:
+        print("[root-get] Checking package DB keys available in root-get: {0:s}".format(db_manifest.keys()))
+        if pkg not in db_manifest.keys():
+            print("[root-get] Can't find package {0:s} in DB".format(pkg))
+            return False
+    except:
+        pass
 
 def check_install_pkg_db(pkg, db_manifest):
     print("[root-get] DEBUG: Checking if package actually is already installed")
-    if db_manifest[pkg].has_key("installed"):
-        if db_manifest[pkg]["installed"] is True:
-            return True
+    try:
+        if db_manifest[pkg].has_key("installed"):
+            if db_manifest[pkg]["installed"] is True:
+                return True
+    except:
+        pass
 '''
 def trigger_dependency_pkg_db(pkg, db_manifest):
     print("[root-get] DEBUG: Triggering dependency builds")
@@ -212,11 +227,14 @@ def trigger_dependency_pkg_db(pkg, db_manifest):
 
 def clean_build(pkg, db_manifest):
     print("[root-get] DEBUG: Cleaning build if there is something in build directory")
-    print("[root-get] DEBUG: we are cleaning in {0:s}".format(db_manifest[pkg]["path"] + "/../build"))
-    ecbuild = os.system(PWD_PATH + "/builder/clean-pkg " + pkg)
-    if ecbuild != 0:
-        print("[root-get] Failed to clean build directory for the package.")
-        return False
+    try:
+        print("[root-get] DEBUG: we are cleaning in {0:s}".format(db_manifest[pkg]["path"] + "/../build"))
+        ecbuild = os.system(PWD_PATH + "/builder/clean-pkg " + pkg)
+        if ecbuild != 0:
+            print("[root-get] Failed to clean build directory for the package.")
+            return False
+    except:
+        pass
 
 def rerun_configuration(pkg):
     ecrerun = os.system(PWD_PATH + "/analyzer/rerun-cmake " + pkg)
@@ -226,12 +244,15 @@ def rerun_configuration(pkg):
 
 def build_package(pkg, db_manifest):
     print("[root-get] DEBUG: Building package: ninja build system")
-    print("[root-get] Installing {0:s}".format(pkg))
-    print("[root-get] DEBUG: we are running ninja for {0:s}".format(db_manifest[pkg]["path"]))
-    ecbuild = os.system(PWD_PATH + "/builder/build-pkg " + pkg)
-    if ecbuild != 0:
-        print("[root-get] Failed to build package.")
-        return False
+    try:
+        print("[root-get] Installing {0:s}".format(pkg))
+        print("[root-get] DEBUG: we are running ninja for {0:s}".format(db_manifest[pkg]["path"]))
+        ecbuild = os.system(PWD_PATH + "/builder/build-pkg " + pkg)
+        if ecbuild != 0:
+            print("[root-get] Failed to build package.")
+            return False
+    except:
+        pass
 
 def prepare_package(pkg):
     print("[root-get] DEBUG: Creating Zip file from build directory of package")
@@ -249,6 +270,8 @@ def deploy_pkg(pkg):
         if ecinstallninja != 0:
             print("[root-get] Failed to install package using build system")
             return False
+    else:
+        return "deployed"
 
 def install_dep_pkg(pkg, db_manifest):
     """ Main installation routine only for dependency packages"""
@@ -325,15 +348,25 @@ def install_pkg(pkg):
 # Preparing packages
         prepare_package(pkg)
 # Installing packages
-        deploy_pkg(pkg)
+        deploy_val = deploy_pkg(pkg)
 ####################
-    db_manifest[pkg]["installed"] = True
-    return True
+    try:
+        db_manifest[pkg]["installed"] = True
+    except:
+        pass
+    return deploy_val, True
 #########################################################
 
 def do_install(args):
     if not install_pkg(args[0]):
         exit(1)
+
+#########################################################
+
+def do_pkg_install(arg):
+    deploy_val, truth_val = install_pkg(arg)
+    if deploy_val != "deployed":
+        return "failed"
 
 #########################################################
 def do_list(args):
@@ -346,14 +379,44 @@ def do_list(args):
         for pkg in list(db_manifest.keys()):
             print(pkg)
         choice = raw_input("For module attributes, enter 'Y' else 'N' ...")
-        if choice == "Y":
+        if choice == "Y" or "y":
             print(db_manifest)
-        pass
 
 #########################################################
 def do_search(args):
     listing = Namelisting()
     listing.namelist(args[0])
+
+#########################################################
+
+def pkg_install(args):
+    directory = os.environ['ROOTSYS']
+    modules = []
+    rule_name = re.compile('.*name:.*') 
+
+    for subdir, dirs, files in os.walk(directory):
+        if args[0] + ".yml" in files:
+            with open(directory+'/' + args[0] + '.yml') as filepath:
+                fp_read = filepath.read()
+                names = rule_name.findall(fp_read)
+                parsename = [x.strip(' name: ') for x in names]
+
+    for i in range(3, len(parsename)):
+        if '"' in parsename[i]:
+            parsename[i] = parsename[i].replace('"', '')
+            modules.append(parsename[i])
+
+    args[0] = str(args[0])
+    if args[0] == "IO":
+        for i in range(len(modules)):
+            install_val = do_pkg_install(modules[i])
+            if install_val == "failed":
+                print("\n")
+                print("***********************************************")
+                print("Could not install module " + modules[i])
+                print("***********************************************")
+                print("\n")
+                i = i + 1
 
 #########################################################
 
@@ -363,6 +426,7 @@ actions = {
     "-l" : do_list,
     "--list" : do_list,
     "-s" : do_search,
+    "-pi" : pkg_install,
 }
 
 if sys.argv[1] in actions.keys():
