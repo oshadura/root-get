@@ -170,6 +170,8 @@ class Dbgenerator(object):
         infile = open('manifest.yml')
         for line in infile:
             line = line.strip("\n")
+            if "deps" in line:
+                norepeat_list.append(line)
             if line not in norepeat_list:
                 norepeat_list.append(line)
         infile.close()
