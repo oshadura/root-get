@@ -3,6 +3,7 @@ import sys
 import os
 import json
 import re
+import subprocess
 from difflib import get_close_matches
 from os.path import expanduser
 import yaml
@@ -31,6 +32,7 @@ PKG_PATH = os.environ['ROOT_PKG_PATH']
 print("[root-get] ROOT packages installation path: {0:s}".format(PKG_PATH))
 PWD_PATH = os.getcwd()
 print('[root-get] root-get location: {0:s}'.format(PWD_PATH))
+count = 0
 
 def check_package_path(pkg):
     """ Checking names of packages
@@ -62,8 +64,25 @@ def check_module_path(pkg):
         # if have such directory in root then we can try to get it's real path
         path = PathChecker()
         src_dir_root = path.path4module(pkg, ROOT_SOURCES)
+        cmd = str('grep -ioF %s %s' %(pkg, src_dir_root+"/CMakeLists.txt"))
+        output = subprocess.check_output(cmd, shell=True, universal_newlines=True, stderr = subprocess.STDOUT)
+        output = output.strip("\n")
+        global count
+        if pkg == output:
+            count = count + 1
+        if count != 1:
+            if pkg != output:
+                print("Did you mean " + output + " ? ")
+                pkg_val = raw_input("Enter Y/N...")
+                if pkg_val == "N":
+                    exit(0)
+                else:
+                    pkg = output
+                    count = count + 1
+            else:
+                pass
         print("[root-get] We would  use a module from {0:s}".format(src_dir_root))
-    return src_dir_root
+    return pkg, src_dir_root
 
 def analizer_package(pkg, src_dir_root):
     """ Extention of package/module CMake files out of existing in ROOT
@@ -276,9 +295,9 @@ def deploy_pkg(pkg):
 def install_dep_pkg(pkg, db_manifest):
     """ Main installation routine only for dependency packages"""
 # Checkout packages if we have them in ROOT
-    src_path = check_module_path(pkg)
+    npkg, src_path = check_module_path(pkg)
 # Analyzing packages: generation of package/module CMakeFile.txt,
-    analizer_package(pkg, src_path)
+    analizer_package(npkg, src_path)
 # Building DB
     db_manifest = generation_db_modules()
 # Print DB
@@ -290,32 +309,32 @@ def install_dep_pkg(pkg, db_manifest):
 # Parcing packages in db_manifest
     #parced_db_manifest = parser_db_manifest(db_manifest)
 # Resolving dependecies without DAG
-    resolver_dependencies(pkg, db_manifest)
+    resolver_dependencies(npkg, db_manifest)
 # Before buiding we need to check if pkg is really in the Db
-    check_pkg_db(pkg, db_manifest)
+    check_pkg_db(npkg, db_manifest)
 # Check if package is installed
-    if check_install_pkg_db(pkg, db_manifest):
+    if check_install_pkg_db(npkg, db_manifest):
         return True
 # Trigger trigger_dependencies_pkg_db
     #trigger_dependency_pkg_db(pkg, db_manifest)
 # Buiding packages
     else:
-        build_package(pkg, db_manifest)
+        build_package(npkg, db_manifest)
 # Preparing packages
-        prepare_package(pkg)
+        prepare_package(npkg)
 # Installing packages
-        deploy_pkg(pkg)
+        deploy_pkg(npkg)
 ####################
-    db_manifest[pkg]["installed"] = True
+    db_manifest[npkg]["installed"] = True
     return True
 #########################################################
 
 def install_pkg(pkg):
     """ Main installation routine for main package"""
 # Checkout packages if we have them in ROOT
-    src_path = check_module_path(pkg)
+    npkg, src_path = check_module_path(pkg)
 # Analyzing packages: generation of package/module CMakeFile.txt,
-    analizer_package(pkg, src_path)
+    analizer_package(npkg, src_path)
 # Building DB
     db_manifest = generation_db_modules()
 # Print DB
@@ -327,31 +346,31 @@ def install_pkg(pkg):
 # Parcing packages in db_manifest
     parced_db_manifest = parser_db_manifest(db_manifest)
 # Resolving dependecies without DAG
-    resolver_dependencies(pkg, parced_db_manifest)
+    resolver_dependencies(npkg, parced_db_manifest)
 # Adopting name of package according generated DB
 # We are rewriting name of package!
-    pkg = naming_checker(pkg)
+    #pkg = naming_checker(pkg)
 # Before buiding we need to check if pkg is really in the Db
-    check_pkg_db(pkg, parced_db_manifest)
+    check_pkg_db(npkg, parced_db_manifest)
 # Check if package is installed
-    if check_install_pkg_db(pkg, parced_db_manifest):
+    if check_install_pkg_db(npkg, parced_db_manifest):
         return True
     else:
 # Trigger trigger_dependencies_pkg_db
     #trigger_dependency_pkg_db(pkg, parced_db_manifest)
 # Clean build directory
-        clean_build(pkg, parced_db_manifest)
+        clean_build(npkg, parced_db_manifest)
 # Reruning CMake
-        rerun_configuration(pkg)
+        rerun_configuration(npkg)
 # Buiding packages
-        build_package(pkg, parced_db_manifest)
+        build_package(npkg, parced_db_manifest)
 # Preparing packages
-        prepare_package(pkg)
+        prepare_package(npkg)
 # Installing packages
-        deploy_val = deploy_pkg(pkg)
+        deploy_val = deploy_pkg(npkg)
 ####################
     try:
-        db_manifest[pkg]["installed"] = True
+        db_manifest[npkg]["installed"] = True
     except:
         pass
     return deploy_val, True
