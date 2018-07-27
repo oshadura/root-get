@@ -28,7 +28,7 @@ ROOT_CACHE = os.environ["ROOT_PKG_CACHE"]
 print("[root-get] root-get cache: {0:s}".format(ROOT_CACHE))
 ROOT_SOURCES = os.environ['ROOTSOURCES']
 if  ROOT_SOURCES.endswith(os.sep):
-    ROOT_SOURCES = ROOT_SOURCES - os.sep
+    ROOT_SOURCES = ROOT_SOURCES[:-1]
 print("[root-get] ROOT sources: {0:s}".format(ROOT_SOURCES))
 PKG_PATH = os.environ['ROOT_PKG_PATH']
 print("[root-get] ROOT packages installation path: {0:s}".format(PKG_PATH))
