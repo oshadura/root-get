@@ -16,7 +16,7 @@ class Downloader_request(object):
     def download_github(self):
         repository = re.findall(r'/(\w+)', self.url)[-1]
         print("We would like to download {0:s}".format(repository))
-        git_directory = self.dir + "/" + repository
+        git_directory = self.dir + repository
         if not os.path.exists(git_directory):
             Repo.clone_from(self.url, git_directory)
             print("Cloning from github {0:s}".format(self.url))

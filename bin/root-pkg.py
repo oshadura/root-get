@@ -1,9 +1,12 @@
 #!/usr/bin/env python
 import sys
 import os
+import glob
+import subprocess
 import json
 import re
 from difflib import get_close_matches
+from pathlib2 import Path
 from os.path import expanduser
 import yaml
 
@@ -25,7 +28,7 @@ ROOT_CACHE = os.environ["ROOT_PKG_CACHE"]
 print("[root-get] root-get cache: {0:s}".format(ROOT_CACHE))
 ROOT_SOURCES = os.environ['ROOTSOURCES']
 if  ROOT_SOURCES.endswith(os.sep):
-    ROOT_SOURCES = ROOT_SOURCES - os.sep
+    ROOT_SOURCES = ROOT_SOURCES[:-1]
 print("[root-get] ROOT sources: {0:s}".format(ROOT_SOURCES))
 PKG_PATH = os.environ['ROOT_PKG_PATH']
 print("[root-get] ROOT packages installation path: {0:s}".format(PKG_PATH))
@@ -49,6 +52,31 @@ def check_package_path(pkg):
         print("[root-get] We would use a package from {0:s}".format(src_dir_root))
     return src_dir_root
 
+def downloader(path):
+    rule_url = re.compile(".*packageurl:.*")
+
+    with open(path) as flmanifest:
+        mread = flmanifest.read()
+        url = rule_url.findall(mread)
+        flmanifest.close()
+
+    parc_url = [x.lstrip(' packageurl: ') for x in url]
+    d_url = parc_url[0].replace('"','')
+
+    path = path.replace("manifest.yml", '')
+
+    d = Downloader_request(d_url, path)
+    d.download_github()
+    list_files = glob.iglob(path + "/*")
+    lt_file = max(list_files, key=os.path.getctime)
+    return lt_file
+
+def yaml_validator(dir_path):
+    validation = 'require \'yaml\';puts YAML.load_file(' + "'" + str(dir_path) + "'" + ')'
+    suppress = open(os.devnull, 'w')
+    ret_val = subprocess.call(["ruby", "-e", validation], stdout=suppress, stderr=subprocess.STDOUT)
+    return ret_val
+
 def check_module_path(pkg):
     """ Checking names of modules
         Old deprecated mode where we could install separetelly modules"""
@@ -62,7 +90,42 @@ def check_module_path(pkg):
         # if have such directory in root then we can try to get it's real path
         path = PathChecker()
         src_dir_root = path.path4module(pkg, ROOT_SOURCES)
-        print("[root-get] We would  use a module from {0:s}".format(src_dir_root))
+        if src_dir_root != None:
+            print("[root-get] We would use a module from {0:s}".format(src_dir_root))
+        else:
+            print("Package not present in rootbase.")
+            print("Please provide manifest file path, else enter 'NA'")
+            p_manifest = raw_input()
+            if p_manifest != 'NA':
+                value = yaml_validator(p_manifest)
+                if value == 1:
+                    print("Not a valid yml. Please provide valid yml. Exiting now.")
+                else:
+                    print("Downloading package using url.")
+                    dn_path = downloader(p_manifest)
+                #get path for downloaded directory
+                    filepath = Path(dn_path + "/CMakeLists.txt")
+                    if filepath.is_file():
+                        src_dir_root = dn_path
+                    else:
+                        print("No CMakeLists.txt present. Creating using manifest.")
+                        rule_name = re.compile(".*name:.*")
+                        with open(p_manifest) as mn:
+                            read = mn.read()
+                            name = rule_name.findall(read)
+                        parc_name = [x.lstrip(' name: ') for x in name]
+                        cml = open(dn_path + "/CMakeLists.txt", 'a')
+                        cml.write("ROOT_STANDARD_LIBRARY_PACKAGE(" + parc_name[0] + " DEPENDENCIES RIO)")
+                        src_dir_root = dn_path
+
+            else:
+                print("Can you provide package path..(if available)")
+                dir_path = raw_input()
+                filepath = Path(dir_path + "/CMakeLists.txt")
+                if filepath.is_file():
+                    src_dir_root = dir_path
+
+            print("[root-get] We would use a module from {0:s}".format(src_dir_root))
     return src_dir_root
 
 def analizer_package(pkg, src_dir_root):
@@ -212,6 +275,7 @@ def check_install_pkg_db(pkg, db_manifest):
     try:
         if db_manifest[pkg].has_key("installed"):
             if db_manifest[pkg]["installed"] is True:
+                print("Package already installed. Exiting now.")
                 return True
     except:
         pass
