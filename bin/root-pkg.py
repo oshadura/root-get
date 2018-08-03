@@ -1,9 +1,12 @@
 #!/usr/bin/env python
 import sys
 import os
+import glob
+import subprocess
 import json
 import re
 from difflib import get_close_matches
+from pathlib2 import Path
 from os.path import expanduser
 import yaml
 
@@ -25,7 +28,7 @@ ROOT_CACHE = os.environ["ROOT_PKG_CACHE"]
 print("[root-get] root-get cache: {0:s}".format(ROOT_CACHE))
 ROOT_SOURCES = os.environ['ROOTSOURCES']
 if  ROOT_SOURCES.endswith(os.sep):
-    ROOT_SOURCES = ROOT_SOURCES - os.sep
+    ROOT_SOURCES = ROOT_SOURCES[:-1]
 print("[root-get] ROOT sources: {0:s}".format(ROOT_SOURCES))
 PKG_PATH = os.environ['ROOT_PKG_PATH']
 print("[root-get] ROOT packages installation path: {0:s}".format(PKG_PATH))
@@ -49,6 +52,31 @@ def check_package_path(pkg):
         print("[root-get] We would use a package from {0:s}".format(src_dir_root))
     return src_dir_root
 
+def downloader(path):
+    rule_url = re.compile(".*packageurl:.*")
+
+    with open(path) as manifest_file:
+        mread = manifest_file.read()
+        url = rule_url.findall(mread)
+        manifest_file.close()
+
+    parc_url = [x.lstrip(' packageurl: ') for x in url]
+    d_url = parc_url[0].replace('"','')
+
+    path = path.replace("manifest.yml", '')
+
+    downloader_req = Downloader_request(d_url, path)
+    downloader_req.download_github()
+    list_files = glob.iglob(path + "/*")
+    latest_file = max(list_files, key=os.path.getctime)
+    return latest_file
+
+def yaml_validator(dir_path):
+    validation = 'require \'yaml\';puts YAML.load_file(' + "'" + str(dir_path) + "'" + ')'
+    suppress = open(os.devnull, 'w')
+    return_val = subprocess.call(["ruby", "-e", validation], stdout=suppress, stderr=subprocess.STDOUT)
+    return return_val
+
 def check_module_path(pkg):
     """ Checking names of modules
         Old deprecated mode where we could install separetelly modules"""
@@ -62,7 +90,44 @@ def check_module_path(pkg):
         # if have such directory in root then we can try to get it's real path
         path = PathChecker()
         src_dir_root = path.path4module(pkg, ROOT_SOURCES)
-        print("[root-get] We would  use a module from {0:s}".format(src_dir_root))
+        if src_dir_root != None:
+            print("[root-get] We would use a module from {0:s}".format(src_dir_root))
+        else:
+            print("Package not present in rootbase.")
+            print("Please provide absolute path to manifest file, else enter 'NA'")
+            manifest_path = raw_input()
+            if manifest_path != 'NA':
+                value = yaml_validator(manifest_path)
+                if value == 1:
+                    print("Not a valid yml. Please provide valid yml. Exiting now.")
+                else:
+                    print("Downloading package using url.")
+                    download_path = downloader(manifest_path)
+                #get path for downloaded directory
+                    filepath = Path(download_path + "/CMakeLists.txt")
+                    if filepath.is_file():
+                        os.system(PWD_PATH + "/integrator/sedfile " + download_path)
+                        src_dir_root = download_path
+                    else:
+                        #[WIP]
+                        print("No CMakeLists.txt present. Creating using manifest.")
+                        rule_name = re.compile(".*name:.*")
+                        with open(manifest_path) as manifest:
+                            read = manifest.read()
+                            name = rule_name.findall(read)
+                        parc_name = [x.lstrip(' name: ') for x in name]
+                        cml = open(download_path + "/CMakeLists.txt", 'a')
+                        cml.write("ROOT_STANDARD_LIBRARY_PACKAGE(" + parc_name[0] + " DEPENDENCIES RIO)")
+                        src_dir_root = download_path
+
+            else:
+                print("Can you provide package path..(if available)")
+                dir_path = raw_input()
+                filepath = Path(dir_path + "/CMakeLists.txt")
+                if filepath.is_file():
+                    src_dir_root = dir_path
+
+            print("[root-get] We would use a module from {0:s}".format(src_dir_root))
     return src_dir_root
 
 def analizer_package(pkg, src_dir_root):
@@ -212,6 +277,7 @@ def check_install_pkg_db(pkg, db_manifest):
     try:
         if db_manifest[pkg].has_key("installed"):
             if db_manifest[pkg]["installed"] is True:
+                print("Package already installed. Exiting now.")
                 return True
     except:
         pass
@@ -246,7 +312,10 @@ def build_package(pkg, db_manifest):
     print("[root-get] DEBUG: Building package: ninja build system")
     try:
         print("[root-get] Installing {0:s}".format(pkg))
-        print("[root-get] DEBUG: we are running ninja for {0:s}".format(db_manifest[pkg]["path"]))
+        try:
+            print("[root-get] DEBUG: we are running ninja for {0:s}".format(db_manifest[pkg]["path"]))
+        except:
+            pass
         ecbuild = os.system(PWD_PATH + "/builder/build-pkg " + pkg)
         if ecbuild != 0:
             print("[root-get] Failed to build package.")
