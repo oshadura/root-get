@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+
+lne=$(sed -n '/project/=' $1/CMakeLists.txt)
+sed -i "$lne s/^/#/" "$1/CMakeLists.txt"
+
