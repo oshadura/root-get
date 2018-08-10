@@ -4,13 +4,11 @@ import re
 
 home = expanduser("~")
 
-class Dbgenerator(object):
+class DBGenerator(object):
     """DBgenerator class"""
-    def __init__(self, arg=None):
-        super(Dbgenerator, self).__init__()
-        self.arg = arg
+    def __init__(self):
+        super(DBGenerator, self).__init__()
 
-    @classmethod
     def dbgenerator(self):
         """Function to generate module manifest 'yml' file"""
         rootdir = home + "/.cache/root-pkgs/"
@@ -81,7 +79,6 @@ class Dbgenerator(object):
                             manifest_file.write("\n")
                             manifest_file.close()
 
-    @classmethod
     def manifest_generator(self, arg):
         """Function to generate package manifest 'yml' file"""
         rootdir = os.environ['ROOTSYS']
@@ -149,7 +146,6 @@ class Dbgenerator(object):
                 pkg_manifest_file.write(" " + rule_targets_check[i-2] + "\n")
                 pkg_manifest_file.write(" " + rule_deps_check[i-3] + "\n")
 
-    @classmethod
     def clean_deps(self):
         """Function to remove RIO, Core from deps(present by default)"""
         workdir = os.getcwd()
@@ -191,7 +187,6 @@ class Dbgenerator(object):
             else:
                 return "deps"
 
-    @classmethod
     def clean_deps_pkg(self):
         """Function to remove RIO, Core from deps(present by default)"""
         workdir = os.getcwd()
