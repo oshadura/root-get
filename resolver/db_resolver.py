@@ -1,16 +1,62 @@
-""" A Db4pkg class
-Experiments on trying to generate package DB for ROOT PM
+""" A DBResolver class
+    Class responsible for generation of package/module DB for ROOT PM.
 """
 import yaml
-from generator.dbgenerator import *
+from generator.db_generator import *
 
-class Db4pkg():
+class DBResolver():
     def __init__(self, db_dict=None):
         """ initializes a db object
         """
         if db_dict == None:
             db_dict = {}
         self.__db_dict = db_dict
+
+    def generated_manifest(self):
+        if not os.path.exists('./manifest.yml'):
+            open('manifest.yml', 'a').close()
+        db_instance = DBGenerator()
+        db_instance.dbgenerator()
+        global db_value
+        db_value = db_instance.clean_deps()
+        db_manifest = []
+        with open("manifest.yml") as stream:
+            try:
+                db_manifest = yaml.load(stream)
+            except yaml.YAMLError as exc:
+                print(exc)
+        return db_manifest
+
+    def generated_manifest_pkg(self, pkg):
+        if not os.path.exists('./manifest.yml'):
+            open('manifest.yml', 'a').close()
+        db_instance = DBGenerator()
+        db_instance.dbgenerator()
+        global db_value
+        db_value = db_instance.clean_deps()
+        db_manifest = []
+        with open("manifest.yml") as stream:
+            try:
+                db_manifest = yaml.load(stream)
+            except yaml.YAMLError as exc:
+                print(exc)
+        return db_manifest
+
+    def pre_dag(self, db_manifest):
+        """ Removing not needed keys, needed step for DAG
+            FIXME: will not be needed for generated manifests
+        """
+        pre_dag_db = {}
+        try:
+            for i in db_manifest:
+                if 'deps' in db_manifest[i]:
+                    if db_value == "deps":
+                        pre_dag_db[i] = db_manifest[i]['deps'].split(' ')
+                else:
+                    pre_dag_db[i] = []
+        except:
+            pass
+        return pre_dag_db
 
     def hardcoded_db(self):
         """ Hardcoded ROOT manifest
@@ -143,35 +189,3 @@ class Db4pkg():
         """
         db_manifest = yaml.load(db_source)
         return db_manifest
-
-    def generated_manifest(self):
-        if not os.path.exists('./manifest.yml'):
-            print("[root-get] No manifest file..weird, please check what could be wrong with generation.")
-            open('manifest.yml', 'a').close()
-        DBgen = Dbgenerator()
-        DBgen.dbgenerator()
-        global db_value
-        db_value = DBgen.clean_deps()
-        db_manifest = []
-        with open("manifest.yml") as stream:
-            try:
-                db_manifest = yaml.load(stream)
-            except yaml.YAMLError as exc:
-                print(exc)
-        return db_manifest
-
-    def pre_dag(self, db_manifest):
-        """ Removing not needed keys, needed step for DAG
-            FIXME: will not be needed for generated manifests
-        """
-        pre_dag_db = {}
-        try:
-            for i in db_manifest:
-                if 'deps' in db_manifest[i]:
-                    if db_value == "deps":
-                        pre_dag_db[i] = db_manifest[i]['deps'].split(' ')
-                else:
-                    pre_dag_db[i] = []
-        except:
-            pass
-        return pre_dag_db

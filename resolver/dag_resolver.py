@@ -1,17 +1,20 @@
-""" A Dag4pkg class
+""" A DAGPackageManager class
 Experiments on trying to generate DAG for ROOT PM
 """
 from copy import copy, deepcopy
 from collections import deque
 
-import six_subset as six
+from dependencies import six_subset as six
 
 try:
     from collections import OrderedDict
 except ImportError:
     from ordereddict import OrderedDict
 
-class Dag4pkg(object):
+class DAGValidationError(Exception):
+    pass
+
+class DAGResolver(object):
     """Test class for Dag4pkg."""
     def __init__(self):
         """ Construct a new DAG with no nodes or edges. """
