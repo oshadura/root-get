@@ -1,2 +1,4 @@
-from db4pkg import *
-from dag4pkg import *
+from __future__ import absolute_import
+
+from .dag_resolver import *
+from .db_resolver import *
