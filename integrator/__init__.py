@@ -1,1 +1,3 @@
-from zip4pkg import *
+from __future__ import absolute_import
+
+from .zipper_package import *
