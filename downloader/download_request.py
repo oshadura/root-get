@@ -5,10 +5,10 @@ import wget
 import urllib2
 from git import Repo
 
-class Downloader_request(object):
+class Downloader(object):
     """Constructor for Downloader_request."""
     def __init__(self, url, dir):
-        super(Downloader_request, self).__init__()
+        super(Downloader, self).__init__()
         self.url = url
         self.dir = dir
 
