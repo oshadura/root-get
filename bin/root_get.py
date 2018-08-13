@@ -25,55 +25,77 @@ from integrator.install_module import *
 from integrator.install_module_ninja import *
 from analyzer.utilities import check_env
 
+# Logging
+import logging
+import coreutils.package_manager
+
+module_logger = logging.getLogger('bin.root_get')
+
+# create logger with 'spam_application'
+logger = logging.getLogger('root_get')
+logger.setLevel(logging.DEBUG)
+# create file handler which logs even debug messages
+fh = logging.FileHandler('root_get.log')
+fh.setLevel(logging.DEBUG)
+# create console handler with a higher log level
+ch = logging.StreamHandler()
+ch.setLevel(logging.ERROR)
+# create formatter and add it to the handlers
+formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+fh.setFormatter(formatter)
+ch.setFormatter(formatter)
+# add the handlers to the logger
+logger.addHandler(fh)
+logger.addHandler(ch)
 
 # Enviroment variables
 HOME = expanduser("~")
 ROOT_PKG_CACHE = os.environ["ROOT_PKG_CACHE"]
-print("[root-get] root-get cache: {0:s}".format(ROOT_PKG_CACHE))
+module_logger.info("[root-get] root-get cache: %s", ROOT_PKG_CACHE)
 #
 ROOT_SOURCES = os.environ['ROOT_SOURCES']
 if  ROOT_SOURCES.endswith(os.sep):
     ROOT_SOURCES = ROOT_SOURCES[:-1]
-print("[root-get] ROOT sources: {0:s}".format(ROOT_SOURCES))
+module_logger.info("[root-get] ROOT sources: %s", ROOT_SOURCES)
 #
 PKG_PATH = os.environ['ROOT_PKG_PATH']
-print("[root-get] ROOT packages installation path: {0:s}".format(PKG_PATH))
+module_logger.info("[root-get] ROOT packages installation path: %s", PKG_PATH)
 #
 PWD_PATH = os.getcwd()
-print('[root-get] root-get location: {0:s}'.format(PWD_PATH))
+module_logger.info("[root-get] root-get location: %s", PWD_PATH)
 #
 ROOT_MODULES = os.environ['ROOT_MODULES']
-print('[root-get] ROOT modules location: {0:s}'.format(ROOT_MODULES))
+module_logger.info('[root-get] ROOT modules location: %s', ROOT_MODULES)
 
 
 def resolver_dependencies_for_package(pkg, db_manifest):
-    print("[root-get] DEBUG: Resolving dependencies without DAG: direct strategy")
+    module_logger.info("[root-get] DEBUG: Resolving dependencies without DAG: direct strategy")
     try:
         if db_manifest[pkg]["deps"] is not None:
             for dep in db_manifest[pkg]["deps"]:
-                print("[root-get] Installing dependency " + dep)
+                module_logger.info("[root-get] Installing dependency %s", dep)
                 if not install_dep_pkg(dep, db_manifest):
                     return False
                 else:
-                    print("[root-get] Dependency {0:s} is sucessfully installed and deployed".format(dep))
+                    module_logger.info("[root-get] Dependency %s is sucessfully installed and deployed", dep)
         else:
-            print("[root-get] No dependencies for {0:s} ".format(pkg))
+            module_logger.info("[root-get] No dependencies for %s ", pkg)
     except:
         pass
 
 
 def resolver_dependencies_for_module(module, db_manifest):
-    print("[root-get] DEBUG: Resolving dependencies without DAG: direct strategy")
+    module_logger.info("[root-get] DEBUG: Resolving dependencies without DAG: direct strategy")
     try:
         if db_manifest[module]["deps"] is not None:
             for dep in db_manifest[module]["deps"]:
-                print("[root-get] Installing dependency " + dep)
+                module_logger.info("[root-get] Installing dependency %s", dep)
                 if not install_dep_module(dep, db_manifest):
                     return False
                 else:
-                    print("[root-get] Dependency {0:s} is sucessfully installed and deployed".format(dep))
+                    module_logger.info("[root-get] Dependency %s is sucessfully installed and deployed", dep)
         else:
-            print("[root-get] No dependencies for {0:s} ".format(module))
+            module_logger.info("[root-get] No dependencies for %s ", module)
     except:
         pass
 
@@ -269,20 +291,20 @@ def do_list(args):
     """
     cache_dir = os.environ['ROOT_PKG_CACHE']
     if not os.path.exists(ROOT_PKG_CACHE + args[0]):
-        print("Package not installed yet. Please check installation.")
+        module_logger.info("Package not installed yet. Please check installation.")
     else:
         db = DBResolver()
         db_manifest = db.generated_manifest()
-        print("Installed modules are : ")
+        module_logger.info("Installed modules are : ")
         for pkg in list(db_manifest.keys()):
-            print(pkg)
+            module_logger.info(pkg)
         choice = raw_input("For module attributes, enter 'Y' else 'N' ...")
         if choice == "Y" or "y":
-            print(db_manifest)
+            module_logger.info(db_manifest)
 
 #########################################################
 def do_search(args):
-    listing = Namelisting()
+    listing = NameListing()
     listing.namelist(args[0])
 
 #########################################################
@@ -310,11 +332,11 @@ def pkg_install(args):
         for i in range(len(modules)):
             install_val = do_pkg_install(modules[i])
             if install_val == "failed":
-                print("\n")
-                print("***********************************************")
-                print("Could not install module " + modules[i])
-                print("***********************************************")
-                print("\n")
+                module_logger.info("\n")
+                module_logger.info("***********************************************")
+                module_logger.info("Could not install module %s", modules[i])
+                module_logger.info("***********************************************")
+                module_logger.info("\n")
                 i = i + 1
 
 #########################################################
@@ -333,7 +355,7 @@ ACTIONS = {
 if sys.argv[1] in ACTIONS.keys():
     ACTIONS[sys.argv[1]](sys.argv[2:])
 else:
-    print('[root-get] Error! Wrong usage of root-get!')
+    module_logger.info('[root-get] Error! Wrong usage of root-get!')
 
 exit(0)
 MANIFEST = None
