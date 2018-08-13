@@ -3,6 +3,7 @@ import re
 import zipfile
 import wget
 import urllib2
+import logging
 from git import Repo
 
 class Downloader(object):
@@ -11,25 +12,27 @@ class Downloader(object):
         super(Downloader, self).__init__()
         self.url = url
         self.dir = dir
+        self.logger = logging.getLogger('analyser.namelist.NameListing')
+        self.logger.info('creating an instance of NameListing')
 
-    # FIXME: next step is to move to PyGithub
+    # FIXME: next step is to move to PyGithub API
     def download_github(self):
         repository = re.findall(r'/(\w+)', self.url)[-1]
         print("We would like to download {0:s}".format(repository))
         git_directory = self.dir + "/" + repository
         if not os.path.exists(git_directory):
             Repo.clone_from(self.url, git_directory)
-            print("Cloning from github {0:s}".format(self.url))
+            self.logger("Cloning from github {0:s}".format(self.url))
 
     # FIXME: add better checks
     def download_zip(self):
         filename = wget.download(self.url, self.dir)
-        print("Downloading from http %s", self.url)
+        self.logger("Downloading from http %s", self.url)
         if filename.endswith('.zip'):
             try:
                 zip_file = zipfile.ZipFile(filename)
             except zipfile.BadZipfile as ex:
-                print("%s no a zip file" % file)
+                self.logger("%s no a zip file" % file)
 
     def resolving_download(self):
         request = urllib2.Request(self.url)
@@ -44,4 +47,4 @@ class Downloader(object):
         elif re.search('.zip', self.url):
             self.download_zip()
         else:
-            print(" We work only with github repositories and zip files ")
+            self.logger(" We work only with github repositories and zip files ")

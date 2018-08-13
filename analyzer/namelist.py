@@ -1,15 +1,15 @@
 import re
 import os
 import itertools
+import logging
 
-
-class Namelisting(object):
+class NameListing(object):
     """Namelisting class"""
-    def __init__(self, arg=None):
-        super(Namelisting, self).__init__()
-        self.arg = arg
+    def __init__(self):
+        super(NameListing, self).__init__()
+        self.logger = logging.getLogger('analyser.namelist.NameListing')
+        self.logger.info('creating an instance of NameListing')
 
-    @classmethod
     def namelist(self, arg):
         """Function to show available packages and modules if present"""
         path = os.environ['ROOTSYS']
@@ -35,15 +35,15 @@ class Namelisting(object):
                                 module_list.append(parcing_rule_name)
 
         if not pkg_list:
-            print("No packages to show.")
+            self.logger("No packages to show.")
         else:
-            print("Avaiable packages : ")
+            self.logger("Avaiable packages: ")
             for i in range(len(pkg_list)):
-                print(pkg_list[i][0])
+                self.logger(pkg_list[i][0])
 
         if not module_list:
-            print("No modules to show.")
+            self.logger("No modules to show.")
         else:
-            print("Avaiable modules : ")
+            self.logger("Avaiable modules: ")
             for i in range(len(module_list)):
-                print(module_list[i][0])
+                self.logger(module_list[i][0])

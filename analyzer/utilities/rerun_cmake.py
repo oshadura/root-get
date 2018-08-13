@@ -13,8 +13,8 @@ def rerun_cmake(pkg_name):
     try:
         if not os.path.exists(cache_directory):
             os.system('mkdir -p %s' %  cache_directory)
-    except:
-        pass
+    except OSError as e:
+        print "Error: %s - %s." % (e.filename, e.strerror)
     os.chdir(cache_directory)
     cmake_reinvocation = os.system('cmake -DCMAKE_INSTALL_PREFIX=%s/%s/install \
     -DCMAKE_MODULE_PATH=%s/etc/cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=On \

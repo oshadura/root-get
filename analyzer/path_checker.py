@@ -5,15 +5,16 @@
 """
 
 import os
+import logging
 
 class PathChecker(object):
     """ PathChecker class """
-    def __init__(self, arg=None):
+    def __init__(self):
         super(PathChecker, self).__init__()
-        self.arg = arg
+        self.logger = logging.getLogger('analyser.namelist.NameListing')
+        self.logger.info('creating an instance of NameListing')
 
-    @classmethod
-    def path4module(cls, dirname, directory='', mindepth=2, maxdepth=float('inf')):
+    def path4module(self, dirname, directory='', mindepth=2, maxdepth=float('inf')):
         """ Function checking a "walking/search" functionality for ROOT modules"""
         directory = os.path.normcase(directory)
         dirname = dirname.lower()
@@ -33,8 +34,7 @@ class PathChecker(object):
             elif depth > maxdepth:
                 del dirs[:] # too deep, don't recurse
 
-    @classmethod
-    def path4pkg(cls, dirname, directory='', mindepth=1, maxdepth=float('inf')):
+    def path4pkg(self, dirname, directory='', mindepth=1, maxdepth=float('inf')):
         """ Function checking a "walking/search" functionality for ROOT packages"""
         directory = os.path.normcase(directory)
         dirname = dirname.lower()
