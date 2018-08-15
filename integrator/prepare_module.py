@@ -11,7 +11,8 @@ def prepare_module(module_name):
     check_env()
     archive_dir = module_name + "_module_source"
     cd_cache_dir = os.getenv('ROOT_PKG_CACHE') + "/" + module_name + "/build"
-    os.chdir(cd_cache_dir)
+    cd_module_dir = os.getenv('ROOT_PKG_CACHE') + "/" + module_name
+    os.chdir(cd_module_dir)
     if cd_cache_dir != None:
         os.system('mkdir -p %s' % (archive_dir))
         os.system('cp -R install/* %s' % (archive_dir))
