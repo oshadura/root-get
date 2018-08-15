@@ -64,8 +64,8 @@ module_logger.info("[root-get] ROOT packages installation path: %s", PKG_PATH)
 PWD_PATH = os.getcwd()
 module_logger.info("[root-get] root-get location: %s", PWD_PATH)
 #
-ROOT_MODULES = os.environ['ROOT_MODULES']
-module_logger.info('[root-get] ROOT modules location: %s', ROOT_MODULES)
+ROOT_MANIFESTS = os.environ['ROOT_MANIFESTS']
+module_logger.info('[root-get] ROOT modules location: %s', ROOT_MANIFESTS)
 
 
 def resolver_dependencies_for_package(pkg, db_manifest):

@@ -19,9 +19,9 @@ def check_env():
     except ValueError as err:
          module_logger.error("ROOT_SOURCES [ROOT sources] was not defined! Please define it.")
     try:
-        root_cache = os.getenv('ROOT_MODULES')
+        root_cache = os.getenv('ROOT_MANIFESTS')
     except ValueError as err:
-         module_logger.error("ROOT_MODULES [directory with module's configuration files] \
+         module_logger.error("ROOT_MANIFESTS [directory with module's configuration files] \
         was not defined! Please define it.")
     try:
         root_cache = os.getenv('ROOTSYS')

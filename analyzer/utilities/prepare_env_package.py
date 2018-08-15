@@ -19,8 +19,7 @@ def prepare_env_package(pkg_name, path):
         if os.path.exists(build_directory):
             os.removedirs(build_directory)
     except OSError as e:
-        print "Error: %s - %s." % (e.filename, e.strerror)
-        module_logger.info("Couldn't remove build directory for package.")
+        module_logger.info("Error: %s - %s." % (e.filename, e.strerror))
     os.system('mkdir -p %s' %  build_directory)
     os.chdir(build_directory)
     pkg_source = build_directory + "/pkg-source"
@@ -32,8 +31,10 @@ def prepare_env_package(pkg_name, path):
     module_logger.info("[root-get] Module CMake build directory: %s", cmake_cache)
     os.system('mkdir -p %s' %  cmake_cache)
     os.chdir(cmake_cache)
+# FIXME: we are running in classic mode for now, but we will need to switch to:
+# -Druntime_cxxmodules=ON
     cmake = os.system('cmake -DCMAKE_INSTALL_PREFIX=%s/%s/install \
     -DCMAKE_MODULE_PATH=%s/etc/cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=On \
-    -Druntime_cxxmodules=ON -GNinja \
+    -DCMAKE_CXX_STANDARD=14 -GNinja \
     ../pkg-source' % (os.getenv('ROOT_PKG_CACHE'), pkg_name, os.getenv('ROOTSYS')))
     return cmake
